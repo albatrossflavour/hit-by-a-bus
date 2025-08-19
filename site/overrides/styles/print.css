@@ -1,0 +1,247 @@
+/* Print styles for Hit By A Bus Plan */
+
+@media print {
+    /* Hide navigation and non-essential elements */
+    .md-header,
+    .md-tabs,
+    .md-sidebar,
+    .md-nav,
+    .md-footer,
+    .md-search,
+    .md-announce,
+    .md-dialog,
+    .md-tooltip {
+        display: none !important;
+    }
+
+    /* Main content adjustments */
+    .md-main {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .md-main__inner {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .md-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .md-content__inner {
+        margin: 0 !important;
+        padding: 20px !important;
+    }
+
+    /* Typography for print */
+    body {
+        font-size: 12pt !important;
+        line-height: 1.4 !important;
+        color: #000 !important;
+        background: #fff !important;
+    }
+
+    /* Headings */
+    h1 {
+        font-size: 18pt !important;
+        margin-top: 24pt !important;
+        margin-bottom: 12pt !important;
+        page-break-after: avoid !important;
+        font-weight: bold !important;
+    }
+
+    h2 {
+        font-size: 16pt !important;
+        margin-top: 18pt !important;
+        margin-bottom: 9pt !important;
+        page-break-after: avoid !important;
+        font-weight: bold !important;
+    }
+
+    h3 {
+        font-size: 14pt !important;
+        margin-top: 14pt !important;
+        margin-bottom: 7pt !important;
+        page-break-after: avoid !important;
+        font-weight: bold !important;
+    }
+
+    h4, h5, h6 {
+        font-size: 12pt !important;
+        margin-top: 12pt !important;
+        margin-bottom: 6pt !important;
+        page-break-after: avoid !important;
+        font-weight: bold !important;
+    }
+
+    /* Page break controls */
+    .md-typeset h1,
+    .md-typeset h2 {
+        page-break-before: auto !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* Avoid breaks inside content blocks */
+    .md-typeset p,
+    .md-typeset ul,
+    .md-typeset ol,
+    .md-typeset dl,
+    .md-typeset blockquote {
+        page-break-inside: avoid !important;
+    }
+
+    /* List styles */
+    ul, ol {
+        margin: 8pt 0 !important;
+        padding-left: 20pt !important;
+    }
+
+    li {
+        margin-bottom: 4pt !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* Links - show URLs in print */
+    a::after {
+        content: " (" attr(href) ")" !important;
+        font-size: 10pt !important;
+        color: #666 !important;
+    }
+
+    /* Don't show URLs for fragment links or email */
+    a[href^="#"]::after,
+    a[href^="mailto:"]::after {
+        content: none !important;
+    }
+
+    /* Tables */
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        margin: 12pt 0 !important;
+        page-break-inside: auto !important;
+    }
+
+    th, td {
+        border: 1px solid #ddd !important;
+        padding: 6pt !important;
+        text-align: left !important;
+        font-size: 11pt !important;
+    }
+
+    th {
+        background-color: #f5f5f5 !important;
+        font-weight: bold !important;
+    }
+
+    /* Code blocks */
+    code {
+        background-color: #f5f5f5 !important;
+        padding: 2pt 4pt !important;
+        font-family: "Courier New", monospace !important;
+        font-size: 10pt !important;
+        border: 1px solid #ddd !important;
+    }
+
+    pre {
+        background-color: #f9f9f9 !important;
+        padding: 8pt !important;
+        border: 1px solid #ddd !important;
+        margin: 8pt 0 !important;
+        page-break-inside: avoid !important;
+        font-size: 10pt !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Blockquotes */
+    blockquote {
+        margin: 12pt 0 !important;
+        padding: 8pt 12pt !important;
+        border-left: 3pt solid #ddd !important;
+        background-color: #f9f9f9 !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* Horizontal rules */
+    hr {
+        border: none !important;
+        border-top: 2pt solid #333 !important;
+        margin: 18pt 0 !important;
+        page-break-after: avoid !important;
+    }
+
+    /* Images */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* Admonitions (if used) */
+    .admonition {
+        border: 1px solid #ddd !important;
+        padding: 8pt !important;
+        margin: 12pt 0 !important;
+        page-break-inside: avoid !important;
+        background-color: #f9f9f9 !important;
+    }
+
+    .admonition-title {
+        font-weight: bold !important;
+        margin-bottom: 6pt !important;
+    }
+
+    /* Page margins */
+    @page {
+        margin: 1in !important;
+        size: letter !important;
+
+        @top-center {
+            content: "Hit By A Bus Plan - " counter(page);
+            font-size: 10pt;
+            color: #666;
+        }
+    }
+
+    /* First page - no header */
+    @page :first {
+        @top-center {
+            content: none;
+        }
+    }
+
+    /* Ensure critical sections stay together */
+    .md-typeset h2 + p,
+    .md-typeset h2 + ul,
+    .md-typeset h2 + ol,
+    .md-typeset h3 + p,
+    .md-typeset h3 + ul,
+    .md-typeset h3 + ol {
+        page-break-before: avoid !important;
+    }
+
+    /* Force page breaks before major sections if needed */
+    .md-typeset h1 {
+        page-break-before: auto !important;
+    }
+
+    /* Widow and orphan control */
+    p {
+        widows: 2 !important;
+        orphans: 2 !important;
+    }
+
+    /* Remove Material Design specific styling for print */
+    .md-typeset {
+        color: #000 !important;
+    }
+
+    .md-typeset code {
+        background: #f5f5f5 !important;
+        color: #000 !important;
+        border: 1px solid #ddd !important;
+    }
+}

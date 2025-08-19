@@ -1,0 +1,43 @@
+# Hit By A Bus Plan - Docker Compose Configuration
+# Single service with variables to control editor and personalisation
+
+services:
+  hit-by-a-bus-plan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hit-by-a-bus-plan
+    ports:
+      - "8000:8000"  # Main site
+      - "8001:8001"  # Editor (only if ENABLE_EDITOR=true)
+    volumes:
+      # Mount user content and configuration
+      - ./content:/app/content
+      - ./site:/app/site
+      - ./output:/app/output
+    env_file:
+      - .env
+    environment:
+      # Core settings (can be overridden in .env)
+      - MKDOCS_HOST=${MKDOCS_HOST:-0.0.0.0}
+      - MKDOCS_PORT=${MKDOCS_PORT:-8000}
+      - EDITOR_HOST=${EDITOR_HOST:-0.0.0.0}
+      - EDITOR_PORT=${EDITOR_PORT:-8001}
+
+      # Feature toggles (can be overridden in .env)
+      - ENABLE_EDITOR=${ENABLE_EDITOR:-false}
+      - REQUIRE_PERSONALISATION=${REQUIRE_PERSONALISATION:-true}
+
+      # Personalisation (must be set in .env or environment)
+      - PERSON_NAME=${PERSON_NAME:-}
+      - PERSON_PRONOUNS=${PERSON_PRONOUNS:-they/them}
+      - PERSON_RELATIONSHIP=${PERSON_RELATIONSHIP:-me}
+      - PLAN_TITLE=${PLAN_TITLE:-Hit By A Bus Plan}
+      - PLAN_SUBTITLE=${PLAN_SUBTITLE:-Emergency Information Guide}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

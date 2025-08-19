@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="alert alert-info">
+    <strong>Welcome to the Hit By A Bus Plan Editor!</strong><br>
+    Use this interface to edit your emergency plan content. Changes are automatically saved and the site is rebuilt in the background.
+    <span class="status-indicator status-warning"></span>
+    <a href="/api/rebuild" class="btn btn-success" style="margin-left: 1rem;">Rebuild Now</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Content Sections</h2>
+        <p>Edit each section of your emergency plan. Sections marked as "Critical" contain essential information needed immediately.</p>
+    </div>
+    <div class="card-content">
+        {% for file in content_files %}
+        <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-content" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="margin: 0;">
+                        {{ file.section_number }}. {{ file.title }}
+                        {% if file.critical %}
+                        <span class="critical-badge">CRITICAL</span>
+                        {% endif %}
+                    </h3>
+                    <p style="color: #666; margin: 0.5rem 0 0 0;">{{ file.summary }}</p>
+                    {% if file.updated %}
+                    <small style="color: #999;">Last updated: {{ file.updated }}</small>
+                    {% endif %}
+                </div>
+                <div>
+                    <a href="/edit/{{ file.filename }}" class="btn">Edit</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Quick Actions</h2>
+    </div>
+    <div class="card-content">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="/preview" class="btn">Preview Site</a>
+            <a href="http://localhost:8000" target="_blank" class="btn">View Live Site</a>
+            <a href="http://localhost:8000/Hit-By-A-Bus-Plan.pdf" target="_blank" class="btn">Download PDF</a>
+            <a href="/api/rebuild" class="btn btn-success">Force Rebuild</a>
+            <a href="/api/security-scan" class="btn btn-info security-scan-btn">🔍 Security Scan</a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Instructions</h2>
+    </div>
+    <div class="card-content">
+        <h3>How to Use This Editor</h3>
+        <ol>
+            <li><strong>Edit Sections:</strong> Click "Edit" next to any section to modify its content</li>
+            <li><strong>Fill in Placeholders:</strong> Replace placeholder text like <code>[Your bank name]</code> with real information</li>
+            <li><strong>Mark Critical Sections:</strong> Check "Critical" for information needed in the first 24-48 hours</li>
+            <li><strong>Auto-Save:</strong> Changes are saved automatically when you submit the form</li>
+            <li><strong>Auto-Rebuild:</strong> The site and PDF are regenerated automatically after changes</li>
+        </ol>
+
+        <h3>Security Notes</h3>
+        <ul>
+            <li>⚠️ <strong>Do not store actual passwords or sensitive data</strong> in this plan</li>
+            <li>✅ Store only <em>references</em> to where information can be found</li>
+            <li>✅ Use placeholders like "Password manager emergency access" instead of actual passwords</li>
+            <li>✅ Keep the actual sensitive data in password managers, safes, or other secure locations</li>
+            <li>🔍 <strong>Automatic security scanning</strong> runs when content is saved to detect accidentally committed secrets</li>
+        </ul>
+
+        <h3>Content Structure</h3>
+        <p>Each section follows this format:</p>
+        <ul>
+            <li><strong>Summary:</strong> What this section covers</li>
+            <li><strong>What to do:</strong> Specific actions to take</li>
+            <li><strong>Where it is:</strong> Locations of documents, accounts, and contacts</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Handle rebuild and security scan buttons
+document.addEventListener('click', async (e) => {
+    if (e.target.href && e.target.href.includes('/api/rebuild')) {
+        e.preventDefault();
+
+        const btn = e.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Rebuilding...';
+        btn.classList.add('btn-warning');
+        btn.classList.remove('btn-success');
+
+        try {
+            await fetch('/api/rebuild');
+            btn.textContent = 'Rebuild Queued!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-success');
+            }, 2000);
+        } catch (e) {
+            btn.textContent = 'Error';
+            btn.classList.add('btn-danger');
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-success');
+            }, 2000);
+        }
+    }
+
+    if (e.target.href && e.target.href.includes('/api/security-scan')) {
+        e.preventDefault();
+
+        const btn = e.target;
+        const originalText = btn.textContent;
+        btn.textContent = '🔍 Scanning...';
+        btn.classList.add('btn-warning');
+        btn.classList.remove('btn-info');
+
+        try {
+            const response = await fetch('/api/security-scan');
+            const result = await response.json();
+
+            if (result.scan_passed) {
+                btn.textContent = '✅ Scan Passed';
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-success');
+            } else {
+                btn.textContent = '⚠️ Issues Found';
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-danger');
+            }
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('btn-success', 'btn-danger');
+                btn.classList.add('btn-info');
+            }, 3000);
+        } catch (e) {
+            btn.textContent = '❌ Error';
+            btn.classList.add('btn-danger');
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-info');
+            }, 2000);
+        }
+    }
+});
+</script>
+{% endblock %}

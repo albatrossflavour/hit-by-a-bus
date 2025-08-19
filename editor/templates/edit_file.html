@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="/" class="btn">← Back to Editor</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Edit Section: {{ file.title }}</h2>
+        <p>Section {{ file.section_number }} - {{ file.filename }}</p>
+    </div>
+    <div class="card-content">
+        <form method="post" action="/save/{{ file.filename }}">
+            <div class="form-group">
+                <label for="title">Section Title</label>
+                <input type="text" id="title" name="title" value="{{ file.title }}" required>
+                <small style="color: #666;">The main heading for this section</small>
+            </div>
+
+            <div class="form-group">
+                <label for="summary">Summary</label>
+                <input type="text" id="summary" name="summary" value="{{ file.summary }}" required>
+                <small style="color: #666;">Brief description of what this section covers</small>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="critical" name="critical" {% if file.critical %}checked{% endif %}>
+                    <label for="critical">Critical Section</label>
+                </div>
+                <small style="color: #666;">Mark as critical if this information is needed within 24-48 hours of an emergency</small>
+            </div>
+
+            <div class="form-group">
+                <label for="body">Content</label>
+                <textarea id="body" name="body" required>{{ file.body }}</textarea>
+                <small style="color: #666;">
+                    Use Markdown formatting. Follow the three-section format:<br>
+                    <strong>## Summary</strong> - What this section covers<br>
+                    <strong>## What to do</strong> - Specific actions to take<br>
+                    <strong>## Where it is</strong> - Locations of documents, accounts, contacts
+                </small>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success">Save Changes</button>
+                <a href="/" class="btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Markdown Quick Reference</h3>
+    </div>
+    <div class="card-content">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <h4>Headers</h4>
+                <code># Large Header</code><br>
+                <code>## Medium Header</code><br>
+                <code>### Small Header</code>
+
+                <h4 style="margin-top: 1rem;">Lists</h4>
+                <code>- Bullet point</code><br>
+                <code>1. Numbered item</code>
+
+                <h4 style="margin-top: 1rem;">Emphasis</h4>
+                <code>**Bold text**</code><br>
+                <code>*Italic text*</code><br>
+                <code>`Code text`</code>
+            </div>
+            <div>
+                <h4>Security Best Practices</h4>
+                <p><strong>✅ Do:</strong></p>
+                <ul>
+                    <li>Bank: First National Bank</li>
+                    <li>Account: Checking ending in 1234</li>
+                    <li>Login: firstnational.com</li>
+                    <li>Password: Stored in 1Password</li>
+                </ul>
+
+                <p><strong>❌ Don't:</strong></p>
+                <ul>
+                    <li>Password: mypassword123</li>
+                    <li>SSN: 123-45-6789</li>
+                    <li>Account: 1234567890123456</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-save draft to localStorage
+const form = document.querySelector('form');
+const textarea = document.getElementById('body');
+const title = document.getElementById('title');
+const summary = document.getElementById('summary');
+
+function saveDraft() {
+    const draft = {
+        title: title.value,
+        summary: summary.value,
+        body: textarea.value,
+        timestamp: Date.now()
+    };
+    localStorage.setItem(`draft_{{ file.filename }}`, JSON.stringify(draft));
+}
+
+function loadDraft() {
+    const saved = localStorage.getItem(`draft_{{ file.filename }}`);
+    if (saved) {
+        const draft = JSON.parse(saved);
+        // Only load if it's recent (less than 1 hour old)
+        if (Date.now() - draft.timestamp < 3600000) {
+            if (confirm('Found a recent draft. Load it?')) {
+                title.value = draft.title;
+                summary.value = draft.summary;
+                textarea.value = draft.body;
+            }
+        }
+    }
+}
+
+function clearDraft() {
+    localStorage.removeItem(`draft_{{ file.filename }}`);
+}
+
+// Auto-save every 10 seconds
+setInterval(saveDraft, 10000);
+
+// Save on form changes
+[title, summary, textarea].forEach(input => {
+    input.addEventListener('input', saveDraft);
+});
+
+// Clear draft on successful save
+form.addEventListener('submit', clearDraft);
+
+// Load draft on page load
+window.addEventListener('load', loadDraft);
+
+// Warn about unsaved changes
+window.addEventListener('beforeunload', (e) => {
+    const draft = localStorage.getItem(`draft_{{ file.filename }}`);
+    if (draft) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+    }
+});
+</script>
+{% endblock %}
