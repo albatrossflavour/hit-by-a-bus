@@ -1,6 +1,12 @@
-# Hit By A Bus Plan
+<div align="center">
+  <img src="assets/images/logo.png" alt="Hit By A Bus Plan Logo" width="200">
 
-A self-hostable, open source emergency information plan using MkDocs Material. This project provides a structured way to document and organize critical information that loved ones would need access to in an emergency.
+  # Hit By A Bus Plan
+
+  *A self-hostable, open source emergency information plan using MkDocs Material.*
+
+  This project provides a structured way to document and organize critical information that loved ones would need access to in an emergency.
+</div>
 
 ## Features
 
@@ -73,6 +79,52 @@ EDITOR_HOST=0.0.0.0
 EDITOR_PORT=8001
 ```
 
+## Content Architecture & Design
+
+### Why This Content Structure Works
+
+This project uses a **hybrid metadata + markdown approach** rather than pure data files. Here's why:
+
+**✅ Current Approach:**
+```yaml
+---
+title: "Household and Finances"
+updated: "2025-08-13"
+summary: "Banking, bills, household expenses, and financial obligations"
+critical: true
+---
+# Household and Finances
+
+## Summary
+Complete financial picture including bank accounts, recurring bills...
+
+## What to do
+- Secure access to primary bank accounts
+- Review and maintain recurring payments
+```
+
+**❌ Pure Metadata Would Be:**
+```yaml
+banking:
+  accounts:
+    - type: checking
+      bank: "[Bank name]"
+      account_ending: "XXXX"
+      online_access: "[Website/app]"
+      branch_location: "[Address]"
+      statements_location: "[Paper/digital location]"
+    # This gets unwieldy fast for complex information
+```
+
+**Why the hybrid approach works better:**
+
+1. **Complex Information** - Emergency plans contain varied, complex data that doesn't fit neatly into structured formats
+2. **Human Readability** - Markdown allows for explanations, instructions, and formatting that makes information accessible during stressful times
+3. **Cross-References** - Easy to link between sections and provide context
+4. **Flexibility** - Each section can have different information structures while maintaining consistency
+
+**Design Principle**: Use metadata for what the system needs (titles, flags, dates), use markdown for what humans need (instructions, context, formatted information).
+
 ## Content Organization
 
 Each section follows a three-part structure:
@@ -80,6 +132,16 @@ Each section follows a three-part structure:
 - **Summary**: What this section covers
 - **What to do**: Specific actions to take
 - **Where it is**: Locations of documents, accounts, contacts
+
+### Adding New Content Sections
+
+When creating new sections:
+
+1. **Start with metadata**: Include title, summary, updated date, and critical flag if needed
+2. **Follow the three-part format**: Summary → What to do → Where it is
+3. **Use references, not secrets**: Store locations of information, never actual passwords or sensitive data
+4. **Add to navigation**: Update `site/mkdocs.yml` with your new section
+5. **Consider priority**: Where does this fit in the emergency response timeline?
 
 ### Sections (Priority Order)
 

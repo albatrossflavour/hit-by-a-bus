@@ -79,6 +79,50 @@ hit-by-a-bus/
 - Integration with detect-secrets for password/API key detection
 - Automatic scanning on build, save, and container startup
 
+## Content Architecture
+
+**Why Hybrid Metadata + Markdown?**
+
+The system uses a hybrid approach rather than pure metadata for good architectural reasons:
+
+**Current Approach (Works Well):**
+```yaml
+---
+title: "Household and Finances"
+updated: "2025-08-13"
+summary: "Banking, bills, household expenses, and financial obligations"
+critical: true
+---
+```
+Plus rich markdown content with formatting, lists, and cross-references.
+
+**Why Pure Metadata Would Fail:**
+
+1. **Complex Nested Structures** - Financial sections need multiple account types, each with different field sets:
+   ```yaml
+   # This becomes unwieldy fast
+   banking:
+     accounts:
+       - type: checking
+         bank: "[Bank name]"
+         account_ending: "XXXX"
+         online_access: "[Website/app]"
+         branch_location: "[Address]"
+         statements_location: "[Paper/digital location]"
+       - type: savings
+         # ... repeat entire structure
+   ```
+
+2. **Instructional Content** - "What to do" sections contain multi-step procedures, contextual explanations, and cross-references that need formatting.
+
+3. **YAML Complexity** - Complex emergency information doesn't map well to key-value structures.
+
+**Design Decisions:**
+- **Metadata**: Site generation needs (title, critical flag, updated date, summary)
+- **Markdown**: Human-readable content that benefits from formatting and explanation
+- **Template Variables**: Personalization (`{{ person.name }}`)
+- **Structured Sections**: Consistent format but with formatting flexibility
+
 ## Content Structure
 
 Each section follows a three-part format:

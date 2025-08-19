@@ -16,6 +16,8 @@ site_dir: ../output/site
 theme:
   name: material
   custom_dir: overrides
+  favicon: styles/favicon.png
+  logo: styles/favicon.png
   features:
     - navigation.sections
     - navigation.top
